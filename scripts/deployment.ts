@@ -25,7 +25,8 @@ async function main() {
       contracts.upgradeExecutor.address,
       contracts.validatorUtils.address,
       contracts.validatorWalletCreator.address,
-      contracts.deployHelper.address
+      contracts.deployHelper.address.
+      { gasLimit: BigNumber.from('300000') }
     )
     console.log('Template is set on the Rollup Creator')
   } catch (error) {

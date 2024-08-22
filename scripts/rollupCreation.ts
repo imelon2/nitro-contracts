@@ -111,6 +111,7 @@ export async function createRollup(
 
     const createRollupTx = await rollupCreator.createRollup(deployParams, {
       value: feeCost,
+      gasLimit:10166634,
     })
     const createRollupReceipt = await createRollupTx.wait()
 
