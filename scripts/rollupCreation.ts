@@ -115,6 +115,9 @@ export async function createRollup(
     })
     const createRollupReceipt = await createRollupTx.wait()
 
+    console.log("##########");
+    console.log(createRollupReceipt);
+    
     const rollupCreatedEvent = createRollupReceipt.events?.find(
       (event: RollupCreatedEvent) =>
         event.event === 'RollupCreated' &&

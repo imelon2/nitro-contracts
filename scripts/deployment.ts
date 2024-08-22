@@ -16,7 +16,7 @@ async function main() {
 
     // Call setTemplates with the deployed contract addresses
     console.log('Waiting for the Template to be set on the Rollup Creator')
-    await contracts.rollupCreator.setTemplates(
+    const res = await contracts.rollupCreator.setTemplates(
       contracts.bridgeCreator.address,
       contracts.osp.address,
       contracts.challengeManager.address,
@@ -28,6 +28,11 @@ async function main() {
       contracts.deployHelper.address.
       { gasLimit: BigNumber.from('300000') }
     )
+
+    const receipt = await res.wait()
+    console.log("##########");
+    console.log(receipt);
+    
     console.log('Template is set on the Rollup Creator')
   } catch (error) {
     console.error(
