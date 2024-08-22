@@ -111,12 +111,9 @@ export async function createRollup(
 
     const createRollupTx = await rollupCreator.createRollup(deployParams, {
       value: feeCost,
-      gasLimit:10166634,
+      gasLimit:15166634,
     })
     const createRollupReceipt = await createRollupTx.wait()
-
-    console.log("##########");
-    console.log(createRollupReceipt);
     
     const rollupCreatedEvent = createRollupReceipt.events?.find(
       (event: RollupCreatedEvent) =>
