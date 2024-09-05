@@ -197,7 +197,13 @@ export async function deployAllContracts(
     [],
     verify
   )
-  const rollupUser = await deployContract('RollupUserLogic', signer, [], verify)
+
+  /**
+   * 🧑‍🔧 RollupUserLogic.sol -> ERC20RollupUserLogic.sol
+   */
+  // const rollupUser = await deployContract('RollupUserLogic', signer, [], verify)
+  const rollupUser = await deployContract('ERC20RollupUserLogic', signer, [], verify) /** CHANGE ERC20 STAKE TOKEN */
+
   const upgradeExecutor = await deployUpgradeExecutor(signer)
   const validatorUtils = await deployContract(
     'ValidatorUtils',

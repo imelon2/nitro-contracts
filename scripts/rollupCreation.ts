@@ -300,11 +300,19 @@ async function _getDevRollupConfig(
     }
   }
 
+  /**
+   * 🧑‍🔧 stakenToken ethers.constants.AddressZero -> process.env.STAKE_TOKEN || feeToken
+   */
+  const stakeTokenEnv =
+  process.env.STAKE_TOKEN !== undefined
+    ? process.env.STAKE_TOKEN
+    : feeToken
+
   return {
     config: {
       confirmPeriodBlocks: ethers.BigNumber.from('20'),
       extraChallengeTimeBlocks: ethers.BigNumber.from('200'),
-      stakeToken: ethers.constants.AddressZero,
+      stakeToken: stakeTokenEnv,
       baseStake: ethers.utils.parseEther('1'),
       wasmModuleRoot: wasmModuleRoot,
       owner: ownerAddress,

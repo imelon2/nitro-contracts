@@ -2,6 +2,7 @@ import { ethers } from 'hardhat'
 import '@nomiclabs/hardhat-ethers'
 import { deployAllContracts } from './deploymentUtils'
 import { maxDataSize } from './config'
+import { BigNumber } from 'ethers'
 
 async function main() {
   const [signer] = await ethers.getSigners()
@@ -25,7 +26,7 @@ async function main() {
       contracts.upgradeExecutor.address,
       contracts.validatorUtils.address,
       contracts.validatorWalletCreator.address,
-      contracts.deployHelper.address.
+      contracts.deployHelper.address,
       { gasLimit: BigNumber.from('1000000') }
     )
     
