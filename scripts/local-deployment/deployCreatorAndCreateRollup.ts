@@ -48,6 +48,7 @@ async function main() {
   const contracts = await deployAllContracts(deployerWallet, maxDataSize, false)
 
   console.log('Set templates on the Rollup Creator')
+  console.log('CHOI ==> UPDATE')
   await (
     await contracts.rollupCreator.setTemplates(
       contracts.bridgeCreator.address,

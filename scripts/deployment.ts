@@ -16,6 +16,7 @@ async function main() {
 
     // Call setTemplates with the deployed contract addresses
     console.log('Waiting for the Template to be set on the Rollup Creator')
+    console.log('CHOI ==> UPDATE')
     await contracts.rollupCreator.setTemplates(
       contracts.bridgeCreator.address,
       contracts.osp.address,
