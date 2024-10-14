@@ -59,7 +59,7 @@ async function main() {
       contracts.validatorUtils.address,
       contracts.validatorWalletCreator.address,
       contracts.deployHelper.address,
-      { gasLimit: BigNumber.from('300000') }
+      { gasLimit: BigNumber.from('5000000') }
     )
   ).wait()
 
