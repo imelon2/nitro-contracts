@@ -114,7 +114,7 @@ export async function createRollup(
       gasLimit:15166634,
     })
     const createRollupReceipt = await createRollupTx.wait()
-    
+
     const rollupCreatedEvent = createRollupReceipt.events?.find(
       (event: RollupCreatedEvent) =>
         event.event === 'RollupCreated' &&
@@ -299,13 +299,11 @@ async function _getDevRollupConfig(
       throw new Error('Invalid address for batch poster manager')
     }
   }
-  
+
   const confirmPeriodBlocksEnv = process.env.CONFIRM_PERIOD_BLOCKS !== undefined ? process.env.CONFIRM_PERIOD_BLOCKS : "20"
-  console.log(`CHOI >> process.env.CONFIRM_PERIOD_BLOCKS: ${process.env.CONFIRM_PERIOD_BLOCKS}`);
 
   return {
     config: {
-      // confirmPeriodBlocks: ethers.BigNumber.from('20'),
       confirmPeriodBlocks: ethers.BigNumber.from(confirmPeriodBlocksEnv),
       extraChallengeTimeBlocks: ethers.BigNumber.from('200'),
       stakeToken: ethers.constants.AddressZero,

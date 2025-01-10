@@ -81,9 +81,6 @@ export async function deployUpgradeExecutor(signer: any): Promise<Contract> {
   )
   const connectedFactory: ContractFactory = upgradeExecutorFac.connect(signer)
   const upgradeExecutor = await connectedFactory.deploy()
-  console.log("CHOI DEPLOYED >>> CHOI");
-  
-  await upgradeExecutor.deployed()
   return upgradeExecutor
 }
 
@@ -201,7 +198,10 @@ export async function deployAllContracts(
     verify
   )
   const rollupUser = await deployContract('RollupUserLogic', signer, [], verify)
+  
   const upgradeExecutor = await deployUpgradeExecutor(signer)
+  await upgradeExecutor.deployTransaction.wait()
+
   const validatorUtils = await deployContract(
     'ValidatorUtils',
     signer,

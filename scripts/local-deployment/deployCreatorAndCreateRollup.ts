@@ -6,6 +6,8 @@ import { promises as fs } from 'fs'
 import { BigNumber } from 'ethers'
 
 async function main() {
+  console.log("RUN dkargo-nitro-contracts script");
+  
   /// read env vars needed for deployment
   let childChainName = process.env.CHILD_CHAIN_NAME as string
   if (!childChainName) {
@@ -28,7 +30,7 @@ async function main() {
 
   const deployerWallet = new ethers.Wallet(
     deployerPrivKey,
-    new ethers.providers.JsonRpcProvider(parentChainRpc)
+    new ethers.providers.WebSocketProvider(parentChainRpc)
   )
 
   const maxDataSize =
@@ -48,7 +50,6 @@ async function main() {
   const contracts = await deployAllContracts(deployerWallet, maxDataSize, false)
 
   console.log('Set templates on the Rollup Creator')
-  console.log('CHOI ==> UPDATE')
   await (
     await contracts.rollupCreator.setTemplates(
       contracts.bridgeCreator.address,
@@ -60,7 +61,7 @@ async function main() {
       contracts.validatorUtils.address,
       contracts.validatorWalletCreator.address,
       contracts.deployHelper.address,
-      { gasLimit: BigNumber.from('5000000') }
+      { gasLimit: BigNumber.from('5000000') } // it should be estimate
     )
   ).wait()
 
@@ -111,7 +112,10 @@ async function main() {
 }
 
 main()
-  .then(() => process.exit(0))
+  .then(() => {
+    console.log('dkargo-nitro-contract Done.');
+    process.exit(0)
+  })
   .catch((error: Error) => {
     console.error(error)
     process.exit(1)
