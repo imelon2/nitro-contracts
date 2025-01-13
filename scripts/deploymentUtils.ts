@@ -9,6 +9,7 @@ import {
 import { Toolkit4844 } from '../test/contract/toolkit4844'
 import { ArbSys__factory } from '../build/types'
 import { ARB_SYS_ADDRESS } from '@arbitrum/sdk/dist/lib/dataEntities/constants'
+import { Provider, TransactionReceipt } from '@ethersproject/providers'
 
 // Define a verification function
 export async function verifyContract(
@@ -63,14 +64,26 @@ export async function deployContract(
     deploymentArgs.push(overrides)
   }
 
-  const contract: Contract = await connectedFactory.deploy(...deploymentArgs)
-  await contract.deployTransaction.wait()
-  console.log(`New ${contractName} created at address:`, contract.address)
-
-  if (verify)
-    await verifyContract(contractName, contract.address, constructorArgs)
-
-  return contract
+  try {
+    const contract:Contract = await connectedFactory.deploy(...deploymentArgs)
+    await contract.deployTransaction.wait()
+    console.log(`New ${contractName} created at address:`, contract.address)
+  
+    if (verify)
+      await verifyContract(contractName, contract.address, constructorArgs)
+  
+    return contract
+  } catch (error:any) {
+    if(error?.transactionHash) {
+      const receipt = await WaitTxReceiptByHash(signer.provider,error.transactionHash,`deploy ${contractName}`)
+      if(!receipt) {
+        throw error;
+      }
+      return connectedFactory.attach(receipt.contractAddress).connect(signer)
+    } else {
+      throw error
+    }
+  }
 }
 
 // Deploy upgrade executor from imported bytecode
@@ -80,8 +93,21 @@ export async function deployUpgradeExecutor(signer: any): Promise<Contract> {
     UpgradeExecutorBytecode
   )
   const connectedFactory: ContractFactory = upgradeExecutorFac.connect(signer)
-  const upgradeExecutor = await connectedFactory.deploy()
-  return upgradeExecutor
+
+  try {
+    const upgradeExecutor = await connectedFactory.deploy()
+    return upgradeExecutor
+  } catch (error:any) {
+    if(error?.transactionHash) {
+      const is = await WaitTxReceiptByHash(signer.provider,error.transactionHash,`deploy UpgradeExecutor`)
+      if(!is) {
+        throw error;
+      }
+      return connectedFactory.attach(is.contractAddress).connect(signer)
+    } else {
+      throw error
+    }
+  }
 }
 
 // Function to handle all deployments of core contracts using deployContract function
@@ -198,7 +224,7 @@ export async function deployAllContracts(
     verify
   )
   const rollupUser = await deployContract('RollupUserLogic', signer, [], verify)
-  
+
   const upgradeExecutor = await deployUpgradeExecutor(signer)
   await upgradeExecutor.deployTransaction.wait()
 
@@ -248,4 +274,15 @@ export async function _isRunningOnArbitrum(signer: any): Promise<boolean> {
   } catch (error) {
     return false
   }
+}
+
+export async function WaitTxReceiptByHash(provider:Provider ,txHash:any, action:string) : Promise<TransactionReceipt|undefined> {
+  const receipt = await provider.waitForTransaction(txHash,undefined,90000); // timeout will throw error
+  console.log(`>>> Generated error when ${action}, but get tx receipt: ${receipt.transactionHash}`);
+  if (receipt.status == 0) {
+    console.log(">>> But tx receipt status is fail");
+    throw undefined;
+  }
+  console.log(`>>> ${action} tx status is success`);
+  return receipt
 }
