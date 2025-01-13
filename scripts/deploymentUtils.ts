@@ -277,8 +277,9 @@ export async function _isRunningOnArbitrum(signer: any): Promise<boolean> {
 }
 
 export async function WaitTxReceiptByHash(provider:Provider ,txHash:any, action:string) : Promise<TransactionReceipt|undefined> {
+  console.log(`>>> Generated error when ${action}`);
   const receipt = await provider.waitForTransaction(txHash,undefined,90000); // timeout will throw error
-  console.log(`>>> Generated error when ${action}, but get tx receipt: ${receipt.transactionHash}`);
+  console.log(`>> But get tx receipt: ${receipt.transactionHash}`);
   if (receipt.status == 0) {
     console.log(">>> But tx receipt status is fail");
     return undefined;
