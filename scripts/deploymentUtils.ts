@@ -281,7 +281,7 @@ export async function WaitTxReceiptByHash(provider:Provider ,txHash:any, action:
   console.log(`>>> Generated error when ${action}, but get tx receipt: ${receipt.transactionHash}`);
   if (receipt.status == 0) {
     console.log(">>> But tx receipt status is fail");
-    throw undefined;
+    return undefined;
   }
   console.log(`>>> ${action} tx status is success`);
   return receipt
