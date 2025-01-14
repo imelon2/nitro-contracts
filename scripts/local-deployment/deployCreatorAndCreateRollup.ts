@@ -6,7 +6,7 @@ import { promises as fs } from 'fs'
 import { BigNumber } from 'ethers'
 
 async function main() {
-  console.log("RUN dkargo-nitro-contracts-WaitTxReceiptByHash script");
+  console.log("RUN dkargo nitro-contracts script");
   
   /// read env vars needed for deployment
   let childChainName = process.env.CHILD_CHAIN_NAME as string
@@ -124,7 +124,7 @@ async function main() {
 
 main()
   .then(() => {
-    console.log('dkargo-nitro-contract-dkargo-WaitTxReceiptByHash Done.');
+    console.log('dkargo nitro-contract Done.');
     process.exit(0)
   })
   .catch((error: Error) => {
