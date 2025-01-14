@@ -279,7 +279,7 @@ export async function _isRunningOnArbitrum(signer: any): Promise<boolean> {
 export async function WaitTxReceiptByHash(provider:Provider ,txHash:any, action:string) : Promise<TransactionReceipt|undefined> {
   console.log(`>>> Generated error when ${action} || tx hash ${txHash}`);
   const receipt = await provider.waitForTransaction(txHash,undefined,90000); // timeout will throw error
-  console.log(`>>> Transaction recipe exists on-chain: ${receipt}`);
+  console.log(`>>> Transaction recipe exists on-chain`);
   if (receipt.status == 0) {
     console.log(">>> Oops... tx receipt status is fail");
     return undefined;
