@@ -7,7 +7,7 @@ import { BigNumber, Signer } from 'ethers'
 import { IERC20__factory } from '../build/types'
 import { sleep } from './testSetup'
 import { promises as fs } from 'fs'
-import { _isRunningOnArbitrum } from './deploymentUtils'
+import { _isRunningOnArbitrum, WaitTxReceiptByHash } from './deploymentUtils'
 
 // 1 gwei
 const MAX_FER_PER_GAS = BigNumber.from('1000000000')
@@ -85,13 +85,24 @@ export async function createRollup(
     let feeCost = ethers.utils.parseEther('0.13')
     if (feeToken != ethers.constants.AddressZero) {
       // in case fees are paid via fee token, then approve rollup cretor to spend required amount
-      await (
-        await IERC20__factory.connect(feeToken, signer).approve(
-          rollupCreator.address,
-          feeCost
-        )
-      ).wait()
-      feeCost = BigNumber.from(0)
+      try {
+        await (
+          await IERC20__factory.connect(feeToken, signer).approve(
+            rollupCreator.address,
+            feeCost
+          )
+        ).wait()
+        feeCost = BigNumber.from(0)
+      } catch (error:any) {
+        if(error?.transactionHash) {
+          const receipt = await WaitTxReceiptByHash(signer.provider!,error.transactionHash,`setTemplates`)
+          if(!receipt) {
+            throw error;
+          }
+        } else {
+          throw error
+        }
+      }
     }
 
     // Call the createRollup function
@@ -109,11 +120,26 @@ export async function createRollup(
           batchPosterManager: config.batchPosterManager,
         }
 
-    const createRollupTx = await rollupCreator.createRollup(deployParams, {
-      value: feeCost,
-      gasLimit:15166634,
-    })
-    const createRollupReceipt = await createRollupTx.wait()
+        let createRollupReceipt
+      try {
+        const createRollupTx = await rollupCreator.createRollup(deployParams, {
+          value: feeCost,
+          gasLimit:15166634,
+        })
+        createRollupReceipt = await createRollupTx.wait()
+        
+      } catch (error:any) {
+        if(error?.transactionHash) {
+          const receipt = await WaitTxReceiptByHash(signer.provider!,error.transactionHash,`setTemplates`)
+          if(!receipt) {
+            throw error;
+          }
+
+          createRollupReceipt = receipt
+        } else {
+          throw error
+        }
+      }
 
     const rollupCreatedEvent = createRollupReceipt.events?.find(
       (event: RollupCreatedEvent) =>

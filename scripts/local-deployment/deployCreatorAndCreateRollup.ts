@@ -1,12 +1,12 @@
 import { ethers } from 'hardhat'
 import '@nomiclabs/hardhat-ethers'
-import { deployAllContracts } from '../deploymentUtils'
+import { deployAllContracts, WaitTxReceiptByHash } from '../deploymentUtils'
 import { createRollup } from '../rollupCreation'
 import { promises as fs } from 'fs'
 import { BigNumber } from 'ethers'
 
 async function main() {
-  console.log("RUN dkargo-nitro-contracts script");
+  console.log("RUN dkargo-nitro-contracts-WaitTxReceiptByHash script");
   
   /// read env vars needed for deployment
   let childChainName = process.env.CHILD_CHAIN_NAME as string
@@ -50,20 +50,31 @@ async function main() {
   const contracts = await deployAllContracts(deployerWallet, maxDataSize, false)
 
   console.log('Set templates on the Rollup Creator')
-  await (
-    await contracts.rollupCreator.setTemplates(
-      contracts.bridgeCreator.address,
-      contracts.osp.address,
-      contracts.challengeManager.address,
-      contracts.rollupAdmin.address,
-      contracts.rollupUser.address,
-      contracts.upgradeExecutor.address,
-      contracts.validatorUtils.address,
-      contracts.validatorWalletCreator.address,
-      contracts.deployHelper.address,
-      { gasLimit: BigNumber.from('5000000') } // it should be estimate
-    )
-  ).wait()
+  try {
+    await (
+      await contracts.rollupCreator.setTemplates(
+        contracts.bridgeCreator.address,
+        contracts.osp.address,
+        contracts.challengeManager.address,
+        contracts.rollupAdmin.address,
+        contracts.rollupUser.address,
+        contracts.upgradeExecutor.address,
+        contracts.validatorUtils.address,
+        contracts.validatorWalletCreator.address,
+        contracts.deployHelper.address,
+        { gasLimit: BigNumber.from('5000000') } // it should be estimate
+      )
+    ).wait()
+    } catch (error:any) {
+      if(error?.transactionHash) {
+        const receipt = await WaitTxReceiptByHash(deployerWallet.provider,error.transactionHash,`setTemplates`)
+        if(!receipt) {
+          throw error;
+        }
+      } else {
+        throw error
+      }
+  }
 
   /// Create rollup
   const chainId = (await deployerWallet.provider.getNetwork()).chainId
@@ -113,7 +124,7 @@ async function main() {
 
 main()
   .then(() => {
-    console.log('dkargo-nitro-contract Done.');
+    console.log('dkargo-nitro-contract-dkargo-WaitTxReceiptByHash Done.');
     process.exit(0)
   })
   .catch((error: Error) => {
